@@ -765,6 +765,32 @@
             transition: width 0.1s;
         }
 
+        /* ========== HAMBURGER ========== */
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 6px;
+            border-radius: 8px;
+            transition: background 0.2s;
+        }
+        .hamburger:hover { background: rgba(74,124,92,0.12); }
+        .hamburger span {
+            display: block;
+            width: 24px;
+            height: 2px;
+            background: var(--green-deep);
+            border-radius: 2px;
+            transition: all 0.3s;
+        }
+        .navbar.scrolled .hamburger span { background: #e8f5ec; }
+        .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+        .hamburger.open span:nth-child(2) { opacity: 0; }
+        .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
         /* ========== MOBILE ========== */
         @media (max-width: 900px) {
             .about-grid, .contact-grid { grid-template-columns: 1fr; }
@@ -772,11 +798,38 @@
             .elements-container { grid-template-columns: 1fr 1fr; }
             .nutrient-cards { grid-template-columns: 1fr; }
         }
+        @media (max-width: 768px) {
+            .hamburger { display: flex; }
+            .nav-links {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0; right: 0;
+                background: rgba(250, 247, 240, 0.98);
+                backdrop-filter: blur(20px);
+                flex-direction: column;
+                align-items: stretch;
+                padding: 1rem 1.5rem 1.5rem;
+                border-bottom: 1px solid rgba(74,124,92,0.15);
+                gap: 0.3rem;
+                box-shadow: 0 12px 32px rgba(0,0,0,0.08);
+            }
+            .nav-links.open { display: flex; }
+            .navbar.scrolled .nav-links { background: rgba(26,58,37,0.97); }
+            .nav-links a {
+                padding: 0.7rem 1rem;
+                font-size: 0.95rem;
+                border-radius: 12px;
+            }
+            .btn-primary-nav { text-align: center; }
+        }
         @media (max-width: 600px) {
             .services-grid, .elements-container { grid-template-columns: 1fr; }
             .hero-elements { gap: 0.8rem; }
             .element-pill { padding: 0.6rem 0.9rem; }
             .element-pill .el-icon { font-size: 1.5rem; }
+            section { padding: 4rem 0; }
+            .stat-row { gap: 1rem; }
         }
     </style>
 </head>
@@ -798,7 +851,10 @@
                 <div class="logo-small">Lenka Perníčková</div>
             </div>
         </a>
-        <div class="nav-links">
+        <button class="hamburger" id="hamburger" aria-label="Menu">
+            <span></span><span></span><span></span>
+        </button>
+        <div class="nav-links" id="navLinks">
             <a href="#o-poradne">O poradně</a>
             <a href="#sluzby">Služby</a>
             <a href="#zivly">Živly</a>
@@ -1137,6 +1193,21 @@
 
 <!-- ========== JAVASCRIPT ========== -->
 <script>
+// ---- HAMBURGER MENU ----
+const hamburger = document.getElementById('hamburger');
+const navLinks = document.getElementById('navLinks');
+hamburger.addEventListener('click', () => {
+    hamburger.classList.toggle('open');
+    navLinks.classList.toggle('open');
+});
+// Close menu when a link is clicked
+navLinks.querySelectorAll('a').forEach(a => {
+    a.addEventListener('click', () => {
+        hamburger.classList.remove('open');
+        navLinks.classList.remove('open');
+    });
+});
+
 // ---- PROGRESS BAR ----
 const progressBar = document.getElementById('progressBar');
 window.addEventListener('scroll', () => {
@@ -1151,12 +1222,23 @@ window.addEventListener('scroll', () => {
 });
 
 // ---- SCROLL REVEAL ----
+const isMobile = window.innerWidth <= 768;
 const revealObserver = new IntersectionObserver((entries) => {
     entries.forEach(e => {
         if (e.isIntersecting) e.target.classList.add('visible');
     });
-}, { threshold: 0.15 });
+}, { threshold: isMobile ? 0.05 : 0.15, rootMargin: isMobile ? '0px 0px -30px 0px' : '0px' });
 document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+// On mobile, also reveal elements that are already in viewport on load
+if (isMobile) {
+    setTimeout(() => {
+        document.querySelectorAll('.reveal').forEach(el => {
+            const rect = el.getBoundingClientRect();
+            if (rect.top < window.innerHeight) el.classList.add('visible');
+        });
+    }, 100);
+}
 
 // ---- SOIL TABS ----
 document.querySelectorAll('.soil-tab').forEach(tab => {
