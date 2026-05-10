@@ -1,0 +1,1329 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Poradna Vesna – Lenka Perníčková | Přírodní poradenství</title>
+    <meta name="description" content="Poradna Vesna v Olomouci – přírodní léčba, bylinky, terapie. Lenka Perníčková vám podá pomocnou ruku od roku 1991.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,500;0,700;1,300;1,500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --green-deep: #1a3a25;
+            --green-mid: #2d5a3e;
+            --green-accent: #4a7c5c;
+            --green-light: #8bbf7c;
+            --green-pale: #d4e8c8;
+            --cream: #faf7f0;
+            --cream-dark: #f0ebe0;
+            --earth: #8c6b3e;
+            --water-blue: #4a8fa8;
+            --fire-orange: #e06c1a;
+            --air-purple: #7c6ba8;
+            --text-dark: #1a2e1e;
+            --text-mid: #3d5a43;
+            --text-light: #6b8b6b;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'DM Sans', system-ui, sans-serif;
+            background: var(--cream);
+            color: var(--text-dark);
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Cormorant Garamond', Georgia, serif;
+        }
+
+        /* ========== CURSOR TRAIL ========== */
+        .cursor-trail {
+            position: fixed;
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: var(--green-accent);
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0;
+            transition: opacity 0.3s;
+            transform: translate(-50%, -50%);
+        }
+
+        /* ========== PARTICLE CANVAS ========== */
+        #particle-canvas {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 9998;
+        }
+
+        /* ========== NAVBAR ========== */
+        .navbar {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            background: rgba(250, 247, 240, 0.92);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(74, 124, 92, 0.15);
+            z-index: 1000;
+            padding: 0.8rem 2rem;
+            transition: all 0.4s;
+        }
+        .navbar.scrolled {
+            background: rgba(26, 58, 37, 0.95);
+        }
+        .navbar.scrolled .logo-text,
+        .navbar.scrolled .nav-links a {
+            color: #e8f5ec !important;
+        }
+        .navbar.scrolled .logo-small { color: #a8d4b0 !important; }
+
+        .nav-container {
+            max-width: 1300px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .logo-symbol {
+            width: 44px; height: 44px;
+            background: var(--green-accent);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            box-shadow: 0 3px 12px rgba(74,124,92,0.3);
+            transition: transform 0.3s;
+        }
+        .logo-symbol:hover { transform: rotate(20deg) scale(1.1); }
+
+        .logo-text {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--green-deep);
+        }
+        .logo-small { font-size: 0.68rem; color: var(--text-light); }
+
+        .nav-links {
+            display: flex;
+            gap: 0.3rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-mid);
+            padding: 0.45rem 1rem;
+            font-size: 0.85rem;
+            font-weight: 500;
+            border-radius: 30px;
+            transition: all 0.25s;
+        }
+        .nav-links a:hover {
+            background: var(--green-pale);
+            color: var(--green-accent);
+        }
+
+        .btn-primary-nav {
+            background: var(--green-accent) !important;
+            color: white !important;
+        }
+        .btn-primary-nav:hover { background: var(--green-mid) !important; transform: translateY(-1px); }
+
+        .btn-special-nav {
+            background: var(--cream-dark) !important;
+            color: var(--green-deep) !important;
+            border: 1px solid var(--green-pale) !important;
+        }
+
+        /* ========== HERO ========== */
+        .hero {
+            min-height: 100vh;
+            background: var(--green-deep);
+            display: flex;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            padding: 7rem 2rem 5rem;
+        }
+
+        .hero-bg {
+            position: absolute;
+            inset: 0;
+            background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><circle cx="100" cy="100" r="90" fill="none" stroke="%234a7c5c" stroke-width="0.5" opacity="0.3"/><circle cx="100" cy="100" r="70" fill="none" stroke="%234a7c5c" stroke-width="0.3" opacity="0.2"/></svg>');
+            opacity: 0.1;
+        }
+
+        .hero-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            animation: float-orb 8s ease-in-out infinite;
+        }
+        .hero-orb-1 { width: 500px; height: 500px; background: rgba(74,124,92,0.15); top: -100px; right: -100px; animation-delay: 0s; }
+        .hero-orb-2 { width: 300px; height: 300px; background: rgba(139, 191, 124, 0.1); bottom: 50px; left: -50px; animation-delay: -3s; }
+
+        @keyframes float-orb {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-40px) scale(1.05); }
+        }
+
+        .hero-content {
+            max-width: 900px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+            text-align: center;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(74,124,92,0.2);
+            border: 1px solid rgba(139,191,124,0.3);
+            padding: 0.35rem 1.2rem;
+            border-radius: 40px;
+            font-size: 0.7rem;
+            letter-spacing: 3px;
+            color: var(--green-pale);
+            margin-bottom: 1.5rem;
+            animation: fadeSlideUp 0.8s ease both;
+        }
+
+        .hero h1 {
+            font-size: clamp(3rem, 8vw, 6rem);
+            color: #ffffff;
+            line-height: 1.05;
+            margin-bottom: 1.2rem;
+            animation: fadeSlideUp 0.8s ease 0.15s both;
+        }
+        .hero h1 em {
+            color: var(--green-light);
+            font-style: italic;
+        }
+
+        .hero p {
+            font-size: 1.15rem;
+            color: rgba(212, 232, 200, 0.9);
+            margin-bottom: 2.5rem;
+            line-height: 1.7;
+            animation: fadeSlideUp 0.8s ease 0.3s both;
+        }
+
+        @keyframes fadeSlideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            animation: fadeSlideUp 0.8s ease 0.45s both;
+        }
+
+        .btn {
+            padding: 0.85rem 2rem;
+            border-radius: 40px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn-primary {
+            background: var(--green-accent);
+            color: white;
+            box-shadow: 0 8px 24px rgba(74,124,92,0.35);
+        }
+        .btn-primary:hover {
+            background: var(--green-mid);
+            transform: translateY(-3px);
+            box-shadow: 0 16px 32px rgba(74,124,92,0.4);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1.5px solid rgba(212,232,200,0.5);
+            color: var(--green-pale);
+        }
+        .btn-outline:hover {
+            background: rgba(255,255,255,0.08);
+            border-color: var(--green-pale);
+            transform: translateY(-3px);
+        }
+
+        /* Element icons at bottom of hero */
+        .hero-elements {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 4rem;
+            animation: fadeSlideUp 0.8s ease 0.6s both;
+        }
+
+        .element-pill {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            padding: 0.8rem 1.2rem;
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: all 0.3s;
+            user-select: none;
+        }
+        .element-pill:hover {
+            background: rgba(255,255,255,0.07);
+            transform: translateY(-5px);
+        }
+        .element-pill .el-icon { font-size: 2rem; }
+        .element-pill .el-label { font-size: 0.65rem; letter-spacing: 2px; color: rgba(212,232,200,0.7); text-transform: uppercase; }
+
+        /* ========== GENERAL LAYOUT ========== */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+
+        section { padding: 6rem 0; }
+
+        .section-label {
+            display: inline-block;
+            font-size: 0.7rem;
+            letter-spacing: 3px;
+            font-weight: 600;
+            color: var(--green-accent);
+            text-transform: uppercase;
+            margin-bottom: 0.8rem;
+        }
+
+        .section-heading {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(2rem, 5vw, 3rem);
+            font-weight: 500;
+            color: var(--green-deep);
+            line-height: 1.15;
+            margin-bottom: 1rem;
+        }
+        .section-heading em { color: var(--green-accent); font-style: italic; }
+
+        /* ========== ABOUT SECTION ========== */
+        #o-poradne { background: var(--cream); }
+
+        .about-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.1fr;
+            gap: 5rem;
+            align-items: center;
+        }
+
+        .about-text p {
+            color: var(--text-mid);
+            line-height: 1.8;
+            margin-bottom: 1.2rem;
+            font-size: 1rem;
+        }
+
+        .stat-row {
+            display: flex;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .stat-box {
+            text-align: center;
+        }
+        .stat-num {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--green-accent);
+            line-height: 1;
+        }
+        .stat-label { font-size: 0.75rem; color: var(--text-light); margin-top: 4px; }
+
+        .about-visual {
+            position: relative;
+        }
+
+        .about-img-wrap {
+            border-radius: 40px 40px 40px 120px;
+            overflow: hidden;
+            box-shadow: 0 40px 80px -20px rgba(26,58,37,0.2);
+        }
+        .about-img-wrap img { width: 100%; height: 460px; object-fit: cover; display: block; }
+
+        .floating-card {
+            position: absolute;
+            bottom: -20px;
+            left: -30px;
+            background: white;
+            border-radius: 20px;
+            padding: 1.2rem 1.5rem;
+            box-shadow: 0 16px 40px rgba(0,0,0,0.12);
+            z-index: 2;
+        }
+
+        /* ========== SERVICES ========== */
+        #sluzby { background: var(--green-deep); }
+        #sluzby .section-label { color: var(--green-light); }
+        #sluzby .section-heading { color: white; }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-top: 3rem;
+        }
+
+        .service-card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 28px;
+            padding: 2rem;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        .service-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(74,124,92,0.15), transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .service-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            background: rgba(255,255,255,0.1);
+            border-color: rgba(139,191,124,0.4);
+            box-shadow: 0 24px 48px rgba(0,0,0,0.2);
+        }
+        .service-card:hover::before { opacity: 1; }
+
+        .service-icon {
+            font-size: 2.8rem;
+            margin-bottom: 1rem;
+            display: block;
+            transition: transform 0.3s;
+        }
+        .service-card:hover .service-icon { transform: scale(1.2) rotate(-5deg); }
+
+        .service-card h3 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.3rem;
+            color: white;
+            margin-bottom: 0.5rem;
+        }
+        .service-card p { font-size: 0.88rem; color: rgba(212,232,200,0.75); line-height: 1.6; }
+
+        /* ========== ELEMENTS / ŽIVLY INTERACTIVE ========== */
+        #zivly { background: var(--cream-dark); }
+
+        .elements-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            margin-top: 3rem;
+        }
+
+        .element-card {
+            border-radius: 32px;
+            padding: 2.5rem 1.8rem;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+            border: 2px solid transparent;
+            user-select: none;
+        }
+
+        .element-card.water { background: linear-gradient(145deg, #e8f4fa, #d0eaf5); }
+        .element-card.fire { background: linear-gradient(145deg, #fdf0e8, #fbd5b4); }
+        .element-card.earth { background: linear-gradient(145deg, #f0ece2, #e4d9c4); }
+        .element-card.air { background: linear-gradient(145deg, #ede8f5, #ddd0f0); }
+
+        .element-card:hover {
+            transform: translateY(-10px) scale(1.03);
+            box-shadow: 0 30px 60px -15px rgba(0,0,0,0.15);
+        }
+        .element-card.water:hover { border-color: var(--water-blue); }
+        .element-card.fire:hover { border-color: var(--fire-orange); }
+        .element-card.earth:hover { border-color: var(--earth); }
+        .element-card.air:hover { border-color: var(--air-purple); }
+
+        .element-card .el-big-icon {
+            font-size: 4rem;
+            display: block;
+            margin-bottom: 1rem;
+            transition: transform 0.3s;
+        }
+        .element-card:hover .el-big-icon { transform: scale(1.2); }
+
+        .element-card h3 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .element-card.water h3 { color: #1a5c7a; }
+        .element-card.fire h3 { color: #8c3a0a; }
+        .element-card.earth h3 { color: #5c3a14; }
+        .element-card.air h3 { color: #3a2e6e; }
+
+        .element-card p { font-size: 0.85rem; line-height: 1.6; color: var(--text-mid); }
+
+        .element-tooltip {
+            position: absolute;
+            bottom: -80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(26,58,37,0.95);
+            color: white;
+            padding: 0.6rem 1rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            white-space: nowrap;
+            opacity: 0;
+            transition: all 0.3s;
+            pointer-events: none;
+        }
+        .element-card:hover .element-tooltip {
+            bottom: 10px;
+            opacity: 1;
+        }
+
+        /* ========== SOIL GUIDE ========== */
+        #pudni-indikatory { background: #f6f9f1; }
+
+        .soil-tabs {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+            justify-content: center;
+        }
+
+        .soil-tab {
+            padding: 0.5rem 1.2rem;
+            border-radius: 30px;
+            border: 1.5px solid var(--green-pale);
+            background: white;
+            font-size: 0.82rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.25s;
+            color: var(--text-mid);
+        }
+        .soil-tab.active, .soil-tab:hover {
+            background: var(--green-accent);
+            color: white;
+            border-color: var(--green-accent);
+        }
+
+        .soil-panel { display: none; }
+        .soil-panel.active { display: block; animation: fadeIn 0.4s ease; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .weed-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.2rem;
+            margin-bottom: 2rem;
+        }
+
+        .weed-card {
+            background: white;
+            border-radius: 24px;
+            padding: 1.5rem;
+            border-left: 5px solid var(--green-accent);
+            box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        .weed-card::after {
+            content: attr(data-tip);
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            background: var(--green-accent);
+            color: white;
+            font-size: 0.78rem;
+            padding: 0.6rem 1rem;
+            transform: translateY(100%);
+            transition: transform 0.3s;
+        }
+        .weed-card:hover { transform: translateY(-5px); box-shadow: 0 12px 30px rgba(74,124,92,0.15); }
+        .weed-card:hover::after { transform: translateY(0); }
+
+        .weed-card h4 { font-size: 1rem; font-weight: 600; color: var(--green-deep); margin-bottom: 0.4rem; }
+        .weed-card .weed-plants { font-size: 0.82rem; color: var(--green-accent); font-style: italic; margin-bottom: 0.5rem; }
+        .weed-card .weed-desc { font-size: 0.82rem; color: var(--text-light); }
+
+        .nutrient-cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.2rem;
+            margin: 2rem 0;
+        }
+
+        .nutrient-card {
+            border-radius: 24px;
+            padding: 1.5rem;
+            transition: all 0.3s;
+            cursor: default;
+        }
+        .nutrient-card:hover { transform: scale(1.02); }
+        .nutrient-card.ca-low { background: linear-gradient(135deg, #fff5e8, #fde8c8); border-left: 5px solid #e8a030; }
+        .nutrient-card.n-high { background: linear-gradient(135deg, #e8f8f5, #c8ede8); border-left: 5px solid #20a090; }
+        .nutrient-card.n-low  { background: linear-gradient(135deg, #f8f5e8, #ede8c8); border-left: 5px solid #a09030; }
+
+        .nutrient-title { font-weight: 700; font-size: 0.95rem; margin-bottom: 0.5rem; }
+        .nutrient-card.ca-low .nutrient-title { color: #8c5010; }
+        .nutrient-card.n-high .nutrient-title { color: #106858; }
+        .nutrient-card.n-low  .nutrient-title { color: #686020; }
+        .nutrient-text { font-size: 0.82rem; color: var(--text-mid); line-height: 1.6; }
+
+        .soil-wisdom {
+            background: linear-gradient(135deg, var(--green-deep), var(--green-mid));
+            border-radius: 32px;
+            padding: 2rem;
+            color: white;
+            text-align: center;
+            margin-top: 2rem;
+        }
+        .soil-wisdom p { font-size: 1.05rem; line-height: 1.7; opacity: 0.95; }
+
+        /* ========== TABLE SECTION ========== */
+        .weed-table-wrap { overflow-x: auto; margin-top: 2rem; border-radius: 24px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.06); }
+        table { width: 100%; border-collapse: collapse; background: white; }
+        thead th { background: var(--green-deep); color: white; padding: 1rem; font-size: 0.85rem; font-weight: 600; text-align: left; }
+        tbody td { padding: 0.85rem 1rem; font-size: 0.85rem; border-bottom: 1px solid #f0ece2; }
+        tbody tr:hover { background: #f6fbf4; }
+        tbody tr:last-child td { border-bottom: none; }
+        .badge-plus { color: #4a7c5c; font-weight: 700; }
+        .badge-minus { color: #c04040; font-weight: 700; }
+
+        /* ========== CONTACT ========== */
+        #kontakt { background: var(--cream); }
+
+        .contact-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: start;
+        }
+
+        .contact-info-cards { display: flex; flex-direction: column; gap: 1rem; }
+
+        .contact-card {
+            background: white;
+            border-radius: 24px;
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.04);
+            border: 1px solid #ede8dc;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        .contact-card:hover { transform: translateX(8px); box-shadow: 0 8px 24px rgba(74,124,92,0.12); }
+
+        .contact-icon { font-size: 2rem; flex-shrink: 0; }
+        .contact-card h4 { font-size: 0.8rem; color: var(--text-light); margin-bottom: 2px; text-transform: uppercase; letter-spacing: 1px; }
+        .contact-card a { color: var(--green-accent); text-decoration: none; font-weight: 500; font-size: 0.95rem; }
+        .contact-card a:hover { text-decoration: underline; }
+
+        .contact-form-card {
+            background: white;
+            border-radius: 32px;
+            padding: 2.5rem;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.06);
+        }
+        .contact-form-card h3 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.8rem;
+            color: var(--green-deep);
+            margin-bottom: 0.5rem;
+        }
+        .contact-form-card p { font-size: 0.88rem; color: var(--text-light); margin-bottom: 2rem; }
+
+        /* ========== CTA BANNER ========== */
+        .cta-banner {
+            background: linear-gradient(135deg, var(--green-deep) 0%, var(--green-mid) 100%);
+            border-radius: 48px;
+            padding: 3rem;
+            text-align: center;
+            color: white;
+            margin: 2rem 0 4rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .cta-banner::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 70% 50%, rgba(139,191,124,0.15) 0%, transparent 60%);
+        }
+        .cta-banner h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2rem;
+            margin-bottom: 0.8rem;
+            position: relative;
+        }
+        .cta-banner p { font-size: 1rem; opacity: 0.85; margin-bottom: 1.5rem; position: relative; }
+
+        .btn-cta {
+            background: white;
+            color: var(--green-deep);
+            font-weight: 700;
+            position: relative;
+        }
+        .btn-cta:hover { background: var(--green-pale); transform: scale(1.05); }
+
+        /* ========== FOOTER ========== */
+        footer {
+            background: var(--green-deep);
+            color: rgba(212,232,200,0.75);
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+        footer p { font-size: 0.85rem; margin-bottom: 0.5rem; }
+        footer a { color: rgba(212,232,200,0.7); text-decoration: none; }
+        footer a:hover { color: var(--green-light); }
+
+        /* ========== PARTICLE EFFECTS ========== */
+        .spark {
+            position: fixed;
+            pointer-events: none;
+            z-index: 9990;
+            animation: sparkle 0.8s ease-out forwards;
+            font-size: 1.5rem;
+        }
+        @keyframes sparkle {
+            0% { opacity: 1; transform: translate(-50%, -50%) scale(0.5); }
+            60% { opacity: 0.8; transform: translate(-50%, -150%) scale(1.5); }
+            100% { opacity: 0; transform: translate(-50%, -250%) scale(0.5); }
+        }
+
+        /* ========== SCROLL REVEAL ========== */
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .reveal-delay-1 { transition-delay: 0.1s; }
+        .reveal-delay-2 { transition-delay: 0.2s; }
+        .reveal-delay-3 { transition-delay: 0.3s; }
+
+        /* ========== PROGRESS BAR ========== */
+        .progress-bar {
+            position: fixed;
+            top: 0; left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--green-accent), var(--green-light));
+            z-index: 1001;
+            transition: width 0.1s;
+        }
+
+        /* ========== MOBILE ========== */
+        @media (max-width: 900px) {
+            .about-grid, .contact-grid { grid-template-columns: 1fr; }
+            .services-grid { grid-template-columns: 1fr 1fr; }
+            .elements-container { grid-template-columns: 1fr 1fr; }
+            .nutrient-cards { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 600px) {
+            .services-grid, .elements-container { grid-template-columns: 1fr; }
+            .hero-elements { gap: 0.8rem; }
+            .element-pill { padding: 0.6rem 0.9rem; }
+            .element-pill .el-icon { font-size: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Progress bar -->
+<div class="progress-bar" id="progressBar"></div>
+
+<!-- Particle canvas -->
+<canvas id="particle-canvas"></canvas>
+
+<!-- NAVBAR -->
+<nav class="navbar" id="navbar">
+    <div class="nav-container">
+        <a href="#uvod" class="logo">
+            <div class="logo-symbol">🌿</div>
+            <div>
+                <div class="logo-text">Poradna Vesna</div>
+                <div class="logo-small">Lenka Perníčková</div>
+            </div>
+        </a>
+        <div class="nav-links">
+            <a href="#o-poradne">O poradně</a>
+            <a href="#sluzby">Služby</a>
+            <a href="#zivly">Živly</a>
+            <a href="#pudni-indikatory">Půda & plevel</a>
+            <a href="#kontakt">Kontakt</a>
+            <a href="https://www.vesna-pernickova.cz/coprovasdelame.html">Co děláme</a>
+            <a href="https://www.vesna-pernickova.cz/kurzy.html" class="btn-primary-nav">Kurzy ✨</a>
+        </div>
+    </div>
+</nav>
+
+<!-- HERO -->
+<section id="uvod" class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-orb hero-orb-1"></div>
+    <div class="hero-orb hero-orb-2"></div>
+
+    <div class="hero-content">
+        <div class="hero-badge">🌿 PŘÍRODNÍ PORADENSTVÍ OD ROKU 1991</div>
+        <h1>Poradna <em>Vesna</em></h1>
+        <p>Vlídné slovo dokáže mnohdy více, než tuna terapie.<br>Jsme tu, abychom vám podali pomocnou ruku.</p>
+        <div class="btn-group">
+            <a href="#o-poradne" class="btn btn-primary">Více o nás →</a>
+            <a href="#kontakt" class="btn btn-outline">Kontaktujte nás</a>
+        </div>
+
+        <!-- Živly clickable elements -->
+        <div class="hero-elements">
+            <div class="element-pill" data-element="water" title="Klikněte!">
+                <span class="el-icon">💧</span>
+                <span class="el-label">Voda</span>
+            </div>
+            <div class="element-pill" data-element="fire" title="Klikněte!">
+                <span class="el-icon">🔥</span>
+                <span class="el-label">Oheň</span>
+            </div>
+            <div class="element-pill" data-element="earth" title="Klikněte!">
+                <span class="el-icon">🌍</span>
+                <span class="el-label">Země</span>
+            </div>
+            <div class="element-pill" data-element="air" title="Klikněte!">
+                <span class="el-icon">🌬️</span>
+                <span class="el-label">Vzduch</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- O PORADNĚ -->
+<section id="o-poradne">
+    <div class="container">
+        <div class="about-grid">
+            <div class="about-text reveal">
+                <span class="section-label">O nás</span>
+                <h2 class="section-heading">Vítejte v<br><em>Poradně Vesna</em></h2>
+                <p>Činnost poradny byla zahájena v <strong>lednu roku 1991</strong> a to je již pěkných pár let. Za tu dobu se z malých prcků stali velcí kluci a dívky, někteří se dokonce již vrací i se svými dětmi.</p>
+                <p>Dnes je nejčastěji používaným slovem to, co vás trápí, slovo <strong>stres</strong>, následováno depresí, úzkostí a neúměrnou únavou.</p>
+                <p>Pokud se vám nedaří poradit si sami, jsme tu my – abychom vám podali pomocnou ruku.</p>
+
+                <div class="stat-row">
+                    <div class="stat-box">
+                        <div class="stat-num">35+</div>
+                        <div class="stat-label">let zkušeností</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-num">6</div>
+                        <div class="stat-label">metod terapie</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-num">∞</div>
+                        <div class="stat-label">péče a empatie</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="about-visual reveal reveal-delay-2">
+                <div class="about-img-wrap">
+                    <img src="https://images.pexels.com/photos/5945754/pexels-photo-5945754.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Přírodní poradenství">
+                </div>
+                <div class="floating-card">
+                    <span style="font-size:1.5rem">🌿</span>
+                    <div style="font-size:0.8rem; color: var(--text-light); margin-top:4px">Panská 4, Olomouc</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SLUŽBY -->
+<section id="sluzby">
+    <div class="container">
+        <div style="text-align:center" class="reveal">
+            <span class="section-label" style="color:var(--green-light)">Naše služby</span>
+            <h2 class="section-heading" style="color:white">Co pro vás <em>děláme</em></h2>
+        </div>
+
+        <div class="services-grid">
+            <div class="service-card reveal reveal-delay-1" data-service="cic">
+                <span class="service-icon">🌸</span>
+                <h3>Centrum CIC Joalis</h3>
+                <p>Detoxikační a celostní medicína — řízená detoxikace organismu pro obnovu přirozené rovnováhy.</p>
+            </div>
+            <div class="service-card reveal reveal-delay-2" data-service="homeo">
+                <span class="service-icon">💧</span>
+                <h3>Homeopatické poradenství</h3>
+                <p>Anglická a Francouzská škola — jemná a přirozená léčba na základě principu podobnosti.</p>
+            </div>
+            <div class="service-card reveal reveal-delay-3" data-service="energie">
+                <span class="service-icon">⚡</span>
+                <h3>Energetická podpora</h3>
+                <p>Harmonizace energetických center a posílení vitality — práce s čakrami a životní silou.</p>
+            </div>
+            <div class="service-card reveal reveal-delay-1" data-service="myco">
+                <span class="service-icon">🍄</span>
+                <h3>Mycoterapie</h3>
+                <p>Terapie léčivými houbami — adaptogeny pro imunitu a vitalitu z moudrosti přírody.</p>
+            </div>
+            <div class="service-card reveal reveal-delay-2" data-service="online">
+                <span class="service-icon">💻</span>
+                <h3>Online terapie</h3>
+                <p>Poradenství z pohodlí domova, kdekoli na světě. Stejná péče, větší dostupnost.</p>
+            </div>
+            <div class="service-card reveal reveal-delay-3" data-service="kurzy">
+                <span class="service-icon">📿</span>
+                <h3>Kurzy energie</h3>
+                <p>Výuka vědomé práce s vlastní energií a čakrami — transformace skrze poznání živlů.</p>
+            </div>
+        </div>
+
+        <div style="text-align:center; margin-top:2.5rem" class="reveal">
+            <a href="https://www.vesna-pernickova.cz/coprovasdelame.html" class="btn btn-primary">Podrobnější přehled →</a>
+        </div>
+    </div>
+</section>
+
+<!-- ŽIVLY INTERACTIVE -->
+<section id="zivly">
+    <div class="container">
+        <div style="text-align:center" class="reveal">
+            <span class="section-label">Čtyři živly</span>
+            <h2 class="section-heading">Energie <em>přírody</em></h2>
+            <p style="color:var(--text-light); max-width:600px; margin:0 auto 1rem;">Každý živel má svou sílu a moudrost. Klikněte na živel a pocítíte jeho energii!</p>
+        </div>
+
+        <div class="elements-container">
+            <div class="element-card water reveal reveal-delay-1" data-element="water">
+                <span class="el-big-icon">💧</span>
+                <h3>Voda</h3>
+                <p>Pročišťující, léčivá, adaptabilní. Symbol intuice a emocí.</p>
+                <div class="element-tooltip">Klikněte pro vodní efekt!</div>
+            </div>
+            <div class="element-card fire reveal reveal-delay-2" data-element="fire">
+                <span class="el-big-icon">🔥</span>
+                <h3>Oheň</h3>
+                <p>Transformující, vitální, vášnivý. Symbol síly a energie.</p>
+                <div class="element-tooltip">Klikněte pro ohnivý efekt!</div>
+            </div>
+            <div class="element-card earth reveal reveal-delay-3" data-element="earth">
+                <span class="el-big-icon">🌍</span>
+                <h3>Země</h3>
+                <p>Stabilní, uzemňující, výživná. Symbol hojnosti a růstu.</p>
+                <div class="element-tooltip">Klikněte pro zemský efekt!</div>
+            </div>
+            <div class="element-card air reveal reveal-delay-3" data-element="air">
+                <span class="el-big-icon">🌬️</span>
+                <h3>Vzduch</h3>
+                <p>Svobodný, komunikativní, tvůrčí. Symbol myšlenek a slova.</p>
+                <div class="element-tooltip">Klikněte pro vzdušný efekt!</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- PŮDNÍ INDIKÁTORY -->
+<section id="pudni-indikatory">
+    <div class="container">
+        <div style="text-align:center" class="reveal">
+            <span class="section-label">Zahradní indikátory</span>
+            <h2 class="section-heading">Co prozradí <em>plevel o půdě</em></h2>
+            <p style="color:var(--text-light); max-width:680px; margin:0 auto 2rem;">Plevel není nepřítel — je to ukazatel zdraví, struktury a živin ve vaší zahradě. Stačí se naučit číst jeho řeč.</p>
+        </div>
+
+        <!-- Soil tabs -->
+        <div class="soil-tabs reveal">
+            <button class="soil-tab active" data-panel="pudatypy">Typy půd</button>
+            <button class="soil-tab" data-panel="ziviny">Živiny & signály</button>
+            <button class="soil-tab" data-panel="tabulka">Přehledová tabulka</button>
+        </div>
+
+        <!-- Panel: Typy půd -->
+        <div class="soil-panel active" id="panel-pudatypy">
+            <div class="weed-grid">
+                <div class="weed-card" data-tip="✅ Skvělá půda pro zeleninu a bylinky!" style="border-color:#4a7c5c">
+                    <h4>🌱 Bohaté humózní půdy</h4>
+                    <div class="weed-plants">Kopřiva dvoudomá, kopřiva žahavka, kokoška pastuší tobolka, ptačinec žabinec</div>
+                    <div class="weed-desc">Úrodné, na živiny bohaté zahrady – ideální pro pěstování.</div>
+                </div>
+                <div class="weed-card" data-tip="💡 Zkuste přidání písku nebo drenáže." style="border-color:#4a8fa8">
+                    <h4>💧 Hlinité těžší & vlhčí půdy</h4>
+                    <div class="weed-plants">Jitrocel větší, jitrocel kopinatý, pryskyřník plazivý, pampeliška</div>
+                    <div class="weed-desc">Vlhká, jílovitá stanoviště s dobrou zásobou vody.</div>
+                </div>
+                <div class="weed-card" data-tip="🔧 Přidejte kompost a provzdušněte." style="border-color:#8c6b3e">
+                    <h4>🧱 Těžké jílovité půdy</h4>
+                    <div class="weed-plants">Pryskyřník rolní, podběl lékařský, svízel přítula</div>
+                    <div class="weed-desc">Kompaktní půda, potřebuje provzdušnění a organickou hmotu.</div>
+                </div>
+                <div class="weed-card" data-tip="💧 Mulčujte a pravidelně závlahujte." style="border-color:#c2842e">
+                    <h4>🏜️ Sušší písčité půdy</h4>
+                    <div class="weed-plants">Pýr plazivý, vlčí mák, česnáček lékařský, drchnička rolní</div>
+                    <div class="weed-desc">Rychle vysychající, vhodné mulčování a závlaha.</div>
+                </div>
+                <div class="weed-card" data-tip="🪨 Přidejte rašelinu pro kyselejší pH." style="border-color:#7c7c4a">
+                    <h4>🪨 Vápnité půdy</h4>
+                    <div class="weed-plants">Čekanka obecná, šalvěj luční, vlčí mák, chrpa luční, kopřiva žahavka</div>
+                    <div class="weed-desc">Zásadité pH – pokud chcete kyselejší, přidejte rašelinu.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel: Živiny -->
+        <div class="soil-panel" id="panel-ziviny">
+            <div class="nutrient-cards">
+                <div class="nutrient-card ca-low">
+                    <div class="nutrient-title">⚠️ Nedostatek vápníku</div>
+                    <div class="nutrient-text">Rmen rolní, pětour maloúborný, kokoška pastuší tobolka → půdu je třeba přiměřeně vápnit (nejlépe na podzim).</div>
+                </div>
+                <div class="nutrient-card n-high">
+                    <div class="nutrient-title">💨 Nadbytek dusíku</div>
+                    <div class="nutrient-text">Kopřiva dvoudomá, hluchavka bílá, pětour maloúborný, rozrazil perský, svízel přítula, ptačinec žabinec, bršlice kozí noha → omezit hnojiva s dusičnany.</div>
+                </div>
+                <div class="nutrient-card n-low">
+                    <div class="nutrient-title">🍂 Nedostatek dusíku</div>
+                    <div class="nutrient-text">Přeslička rolní, psárka polní → přidat organická hnojiva, kompost či zelené hnojení.</div>
+                </div>
+            </div>
+            <div class="soil-wisdom">
+                <p>✨ <strong>Zahradnická moudrost:</strong> Plevely jsou učebnicí půdy. Podle jejich výskytu lze upravit pH, dodat chybějící stopové prvky nebo zvolit správné plodiny pro daný typ zahrady.</p>
+            </div>
+        </div>
+
+        <!-- Panel: Tabulka -->
+        <div class="soil-panel" id="panel-tabulka">
+            <div class="weed-table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Plevel</th>
+                            <th>Vápník</th>
+                            <th>Dusík</th>
+                            <th>Interpretace</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Drchnička rolní</td><td class="badge-plus">+</td><td class="badge-plus">+</td><td>Vyšší obsah vápníku, neutrální dusík</td></tr>
+                        <tr><td>Jitrocel větší</td><td class="badge-plus">+</td><td class="badge-plus">+</td><td>Těžší půdy, střední hodnoty</td></tr>
+                        <tr><td>Kokoška pastuší tobolka</td><td class="badge-minus">–</td><td class="badge-plus">+</td><td>Nízký vápník, vyšší dusík → vápnit</td></tr>
+                        <tr><td>Kopřiva dvoudomá</td><td class="badge-plus">+</td><td class="badge-plus">+</td><td>Úrodná, humózní půda</td></tr>
+                        <tr><td>Kopřiva žahavka</td><td class="badge-plus">+</td><td class="badge-plus">+</td><td>Dobrá zásoba živin, dusík střídmě</td></tr>
+                        <tr><td>Mák vlčí</td><td class="badge-plus">+</td><td class="badge-plus">+</td><td>Písčité až vápenité půdy</td></tr>
+                        <tr><td>Pětour maloúborný</td><td class="badge-minus">–</td><td class="badge-plus">+</td><td>Nedostatek Ca, nadbytek N – vápnění</td></tr>
+                        <tr><td>Ptačinec žabinec</td><td class="badge-plus">+</td><td class="badge-plus">+</td><td>Úrodné, provlhčené půdy</td></tr>
+                        <tr><td>Rmen rolní</td><td class="badge-minus">–</td><td class="badge-minus">–</td><td>Chudé, vápenitě chudé – vylepšit kompostem</td></tr>
+                        <tr><td>Svízel přítula</td><td class="badge-plus">+</td><td class="badge-plus">+</td><td>Těžší, vápnité hlíny</td></tr>
+                        <tr><td>Šťovík kyselý</td><td class="badge-plus">+</td><td class="badge-plus">+</td><td>Kyselé, střední živiny</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- KONTAKT -->
+<section id="kontakt">
+    <div class="container">
+        <div style="text-align:center; margin-bottom:3rem" class="reveal">
+            <span class="section-label">Kontakt</span>
+            <h2 class="section-heading">Najdete nás <em>v Olomouci</em></h2>
+        </div>
+
+        <div class="contact-grid">
+            <div class="contact-info-cards reveal">
+                <div class="contact-card">
+                    <span class="contact-icon">📍</span>
+                    <div>
+                        <h4>Adresa</h4>
+                        <span style="font-weight:500; font-size:0.95rem">Panská 4, 771 00 Olomouc</span>
+                    </div>
+                </div>
+                <div class="contact-card">
+                    <span class="contact-icon">📞</span>
+                    <div>
+                        <h4>Telefon</h4>
+                        <a href="tel:+420777799976">777 799 976</a>
+                    </div>
+                </div>
+                <div class="contact-card">
+                    <span class="contact-icon">✉️</span>
+                    <div>
+                        <h4>E-mail</h4>
+                        <a href="mailto:perni@seznam.cz">perni@seznam.cz</a><br>
+                        <a href="mailto:vesnapernickova@gmail.com">vesnapernickova@gmail.com</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="contact-form-card reveal reveal-delay-2">
+                <h3>Ozvěte se nám</h3>
+                <p>Máte otázku nebo chcete sjednat konzultaci? Neváhejte nás kontaktovat.</p>
+                <a href="mailto:perni@seznam.cz" class="btn btn-primary" style="display:block; text-align:center; margin-bottom:1rem">Napsat e-mail →</a>
+                <a href="tel:+420777799976" class="btn btn-outline" style="display:block; text-align:center; background:var(--cream); color:var(--green-deep); border-color:var(--green-pale)">📞 Zavolat</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA BANNER -->
+<div class="container">
+    <div class="cta-banner reveal">
+        <h2>✨🌿 Objevte svou energii</h2>
+        <p>Přihlaste se na kurzy práce s čakrami a živly — transformace začíná uvnitř.</p>
+        <a href="https://www.vesna-pernickova.cz/kurzy.html" class="btn btn-cta">Prozkoumat kurzy →</a>
+    </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+    <p>© 2026 Poradna Vesna – Lenka Perníčková | Panská 4, Olomouc</p>
+    <p style="margin-top:0.8rem; font-size:0.78rem;">
+        <a href="index.html">Úvod</a> &nbsp;|&nbsp;
+        <a href="https://www.vesna-pernickova.cz/coprovasdelame.html">Služby</a> &nbsp;|&nbsp;
+        <a href="https://www.vesna-pernickova.cz/kurzy.html">Kurzy</a> &nbsp;|&nbsp;
+        <a href="#pudni-indikatory">Plevel a půda</a>
+    </p>
+</footer>
+
+<!-- ========== JAVASCRIPT ========== -->
+<script>
+// ---- PROGRESS BAR ----
+const progressBar = document.getElementById('progressBar');
+window.addEventListener('scroll', () => {
+    const scrolled = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight);
+    progressBar.style.width = (scrolled * 100) + '%';
+});
+
+// ---- NAVBAR SCROLL ----
+const navbar = document.getElementById('navbar');
+window.addEventListener('scroll', () => {
+    navbar.classList.toggle('scrolled', window.scrollY > 80);
+});
+
+// ---- SCROLL REVEAL ----
+const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+        if (e.isIntersecting) e.target.classList.add('visible');
+    });
+}, { threshold: 0.15 });
+document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+// ---- SOIL TABS ----
+document.querySelectorAll('.soil-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+        document.querySelectorAll('.soil-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.soil-panel').forEach(p => p.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById('panel-' + tab.dataset.panel).classList.add('active');
+    });
+});
+
+// ---- PARTICLE SYSTEM ----
+const canvas = document.getElementById('particle-canvas');
+const ctx = canvas.getContext('2d');
+
+function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+const particles = [];
+
+class Particle {
+    constructor(x, y, type) {
+        this.x = x;
+        this.y = y;
+        this.type = type;
+        this.vx = (Math.random() - 0.5) * 4;
+        this.vy = (Math.random() - 0.5) * 4 - 2;
+        this.life = 1;
+        this.decay = 0.015 + Math.random() * 0.02;
+        this.size = 4 + Math.random() * 8;
+        this.emoji = this.getEmoji();
+        this.angle = Math.random() * Math.PI * 2;
+        this.spin = (Math.random() - 0.5) * 0.1;
+    }
+
+    getEmoji() {
+        const types = {
+            water: ['💧', '🫧', '💙', '🌊'],
+            fire:  ['🔥', '✨', '⚡', '💥'],
+            earth: ['🌿', '🍀', '🌱', '🌾'],
+            air:   ['🌬️', '⭐', '🕊️', '💨'],
+            default: ['✨', '🌿', '💫', '⭐']
+        };
+        const arr = types[this.type] || types.default;
+        return arr[Math.floor(Math.random() * arr.length)];
+    }
+
+    update() {
+        this.x += this.vx;
+        this.y += this.vy;
+        this.vy += 0.03; // slight gravity
+        this.life -= this.decay;
+        this.angle += this.spin;
+    }
+
+    draw() {
+        ctx.save();
+        ctx.globalAlpha = this.life;
+        ctx.translate(this.x, this.y);
+        ctx.rotate(this.angle);
+        ctx.font = `${this.size * 2}px serif`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(this.emoji, 0, 0);
+        ctx.restore();
+    }
+}
+
+function animateParticles() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    for (let i = particles.length - 1; i >= 0; i--) {
+        particles[i].update();
+        particles[i].draw();
+        if (particles[i].life <= 0) particles.splice(i, 1);
+    }
+    requestAnimationFrame(animateParticles);
+}
+animateParticles();
+
+function spawnParticles(x, y, type, count = 12) {
+    for (let i = 0; i < count; i++) {
+        particles.push(new Particle(x, y, type));
+    }
+}
+
+// ---- ELEMENT CLICK HANDLERS (Hero pills) ----
+document.querySelectorAll('.element-pill[data-element]').forEach(pill => {
+    pill.addEventListener('click', (e) => {
+        const rect = pill.getBoundingClientRect();
+        const cx = rect.left + rect.width / 2;
+        const cy = rect.top + rect.height / 2;
+        const type = pill.dataset.element;
+        spawnParticles(cx, cy, type, 20);
+        pill.style.transform = 'scale(1.3)';
+        setTimeout(() => pill.style.transform = '', 300);
+    });
+});
+
+// ---- ELEMENT CARD CLICK HANDLERS (Živly section) ----
+document.querySelectorAll('.element-card[data-element]').forEach(card => {
+    card.addEventListener('click', (e) => {
+        const rect = card.getBoundingClientRect();
+        const cx = rect.left + rect.width / 2;
+        const cy = rect.top + rect.height / 2;
+        const type = card.dataset.element;
+        spawnParticles(cx, cy, type, 30);
+
+        // Ripple effect
+        const ripple = document.createElement('div');
+        ripple.style.cssText = `position:fixed;left:${cx}px;top:${cy}px;width:0;height:0;border-radius:50%;transform:translate(-50%,-50%);pointer-events:none;z-index:9000;transition:all 0.6s ease-out;`;
+        const colors = { water:'rgba(74,143,168,0.3)', fire:'rgba(224,108,26,0.3)', earth:'rgba(140,107,62,0.3)', air:'rgba(124,107,168,0.3)' };
+        ripple.style.background = colors[type] || 'rgba(74,124,92,0.3)';
+        document.body.appendChild(ripple);
+        setTimeout(() => { ripple.style.width = '300px'; ripple.style.height = '300px'; ripple.style.opacity = '0'; }, 10);
+        setTimeout(() => ripple.remove(), 700);
+    });
+});
+
+// ---- SERVICE CARD CLICKS ----
+document.querySelectorAll('.service-card').forEach(card => {
+    card.addEventListener('click', (e) => {
+        const rect = card.getBoundingClientRect();
+        spawnParticles(rect.left + rect.width/2, rect.top + rect.height/2, 'default', 15);
+    });
+});
+
+// ---- WEED CARD CLICKS ----
+document.querySelectorAll('.weed-card').forEach(card => {
+    card.addEventListener('click', () => {
+        spawnParticles(window.innerWidth / 2, window.innerHeight / 2, 'earth', 20);
+    });
+});
+
+// ---- SMOOTH SCROLL ----
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+        const id = a.getAttribute('href');
+        if (id === '#' || id === '') return;
+        const el = document.querySelector(id);
+        if (el) {
+            e.preventDefault();
+            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    });
+});
+
+// ---- CONTACT CARDS CLICK ----
+document.querySelectorAll('.contact-card').forEach(card => {
+    card.addEventListener('click', () => {
+        const rect = card.getBoundingClientRect();
+        spawnParticles(rect.left + rect.width/2, rect.top + rect.height/2, 'default', 10);
+    });
+});
+
+// ---- TABLE ROW HOVER sparkle ----
+document.querySelectorAll('tbody tr').forEach(row => {
+    row.addEventListener('mouseenter', () => {
+        const rect = row.getBoundingClientRect();
+        if (Math.random() > 0.7) {
+            spawnParticles(rect.left + rect.width/2, rect.top + rect.height/2, 'earth', 5);
+        }
+    });
+});
+</script>
+</body>
+</html>
